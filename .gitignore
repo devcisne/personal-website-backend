@@ -5,6 +5,8 @@
 /.pnp
 .pnp.js
 
+creds.js
+
 # testing
 /coverage
 
