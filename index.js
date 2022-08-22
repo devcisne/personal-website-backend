@@ -34,7 +34,7 @@ app.post("/sendMail", [check('email').isEmail()], (req, res) => {
   <li>Email: ${req.body.email}</li>
   </ul>
   <h3>Message:</h3>
-  <p>${req.body.msg}</p>
+  <p>${req.body.msg || '[No message]'}</p>
   `;
 
   const mailOptions = {
@@ -54,9 +54,8 @@ app.post("/sendMail", [check('email').isEmail()], (req, res) => {
     if (err) return res.status(500).send(err);
     console.log('Message sent: %s', info);
   });
-  // res.status(200).send(`henlo fren ${req.body.senderName}`);
+  res.status(200).json({ "msg": `${req.body.senderName} your contact message has been sent` });
 
-  console.log("REEE")
 });
 
 app.listen(5000, () => {
