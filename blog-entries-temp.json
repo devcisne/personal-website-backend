@@ -1,0 +1,50 @@
+{
+  "blogEntries": [
+    {
+      "entryID": "entry1",
+      "title": "blog entry 1",
+      "content": "<p> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer ultrices nibh quis mollis ultricies. Morbi tempus velit diam, in facilisis lorem interdum eget. Vestibulum sagittis facilisis nibh id mattis. Vestibulum non vestibulum justo, ac bibendum lacus. Sed semper malesuada sagittis. Ut eget ante non sapien tristique accumsan id id odio. Vivamus sodales odio sit amet sem placerat vulputate. Ut urna tellus, rhoncus ac sem et, rutrum ultricies risus. Quisque tortor odio, placerat ut consectetur fringilla, posuere in urna. Sed porta vel massa maximus ultricies. Vestibulum bibendum arcu urna, pellentesque tincidunt arcu fringilla ut. Mauris pellentesque tincidunt eros nec bibendum. Nunc vel nisi sit amet dolor eleifend consectetur. Etiam nisi leo, semper quis vestibulum eget, pharetra nec dui. </p> <br/> <p> Nunc et dolor sem. Nunc sapien quam, aliquet a nunc ut, finibus bibendum ante. Mauris cursus at leo quis pretium. Proin nisi urna, ornare a ante eget, varius lobortis mauris. Etiam accumsan iaculis fermentum. Etiam congue, lacus nec vulputate pulvinar, tellus ipsum accumsan ipsum, a dignissim nibh dui vel sem. Ut bibendum, augue in dictum tincidunt, felis sapien feugiat dolor, quis euismod odio dui quis justo. Donec venenatis sit amet risus in imperdiet. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Sed id eros et ex hendrerit molestie et non est. Etiam volutpat dui at lacus commodo, at elementum nulla pretium. Phasellus eu imperdiet quam, eget congue sem. Mauris at tristique lacus. </p>",
+      "pubDate": "1/1/2000",
+      "comments": []
+    },
+    {
+      "entryID": "entry2",
+      "title": "blog entry 2",
+      "content": "<p> Quisque varius tristique pharetra. Curabitur metus elit, consequat condimentum ante ut, luctus interdum metus. Morbi ornare augue faucibus diam dictum, at dignissim libero tempus. Praesent est nisl, porttitor eget efficitur nec, tincidunt a enim. Sed quis tellus nulla. Suspendisse potenti. Maecenas tristique eros dignissim sem egestas, at fermentum elit lobortis. Etiam euismod volutpat nunc, in placerat ex accumsan a. Nam at purus lobortis, molestie felis sit amet, consequat ipsum. Vestibulum gravida sagittis nunc, a auctor ex fermentum ac. Vivamus non euismod lectus. Fusce et semper tellus. Nunc vulputate, lacus nec commodo tincidunt, leo magna ornare sem, vitae hendrerit felis est at justo. Donec non mauris quis mauris rutrum maximus.</p> <br/> <p> Integer eu neque consectetur, porta sapien eget, congue sem. Maecenas nec nisi faucibus, maximus quam blandit, commodo tortor. Etiam dui lectus, vehicula ac magna et, porttitor placerat ex. Integer faucibus sed neque vel imperdiet. Phasellus tellus odio, tempus sit amet odio et, maximus vehicula nisi. Nulla facilisi. Quisque vel quam eget eros cursus euismod. Sed maximus vitae mauris vel accumsan. Proin vitae posuere nisi, sed hendrerit tortor. Pellentesque semper hendrerit quam id pharetra. Vestibulum eleifend lacus nec ornare posuere. Integer vulputate elit at tempor aliquam. Nam auctor, tortor id luctus pharetra, dui neque ultricies libero, at lobortis ante erat eu leo. Aliquam maximus vestibulum orci at iaculis. Sed fringilla lectus odio, vel ornare leo convallis id. Ut molestie ornare est finibus ultricies.</p> ",
+      "pubDate": "2/1/2000",
+      "comments": []
+    },
+    {
+      "entryID": "entry3",
+      "title": "blog entry 3",
+      "content": "<p> Quisque in fringilla lorem, non tincidunt erat. Mauris commodo ac arcu ac feugiat. Suspendisse tempor eu felis eu placerat. Nulla cursus maximus purus, et sagittis erat porttitor et. Praesent non metus id massa sollicitudin accumsan. Duis vitae purus risus. Etiam lacinia sed orci nec tempus. Proin tincidunt dui ac vulputate suscipit. Morbi ac augue mi. Sed mollis, nunc eu malesuada fringilla, urna lacus lacinia tellus, at finibus risus lorem eget justo. Praesent pellentesque, urna non tincidunt fermentum, tellus eros blandit tellus, sed consequat dui nisi eget erat. Pellentesque nibh neque, dignissim ut semper a, aliquam vel velit. Nullam a urna non mi condimentum iaculis non ut ligula. Curabitur placerat tellus vel luctus varius.</p> <br/> <p> Praesent tincidunt, nisl a vulputate rutrum, diam ligula tempus turpis, vitae auctor sapien justo in erat. Phasellus quam neque, malesuada quis condimentum et, scelerisque ac sapien. Donec orci erat, posuere sed diam sed, sollicitudin sollicitudin dolor. Maecenas dignissim elit vitae gravida placerat. Proin gravida urna purus, in sodales libero interdum vitae. Praesent ultricies ipsum at erat vulputate suscipit. Nunc luctus, arcu vel pulvinar tempor, nulla augue iaculis lacus, quis dapibus lacus velit non sem. Nunc rhoncus elit est, eget tempor mauris consequat non.</p>",
+      "pubDate": "3/1/2000",
+      "comments": [
+        {
+          "userName": "luca",
+          "commentContent": "viva GOKU"
+        },
+        {
+          "userName": "alejandro",
+          "commentContent": "lorem ipsum"
+        }
+      ]
+    },
+    {
+      "entryID": "entry4",
+      "title": "blog entry 4",
+      "content": "<p> Quisque in fringilla lorem, non tincidunt erat. Mauris commodo ac arcu ac feugiat. Suspendisse tempor eu felis eu placerat. Nulla cursus maximus purus, et sagittis erat porttitor et. Praesent non metus id massa sollicitudin accumsan. Duis vitae purus risus. Etiam lacinia sed orci nec tempus. Proin tincidunt dui ac vulputate suscipit. Morbi ac augue mi. Sed mollis, nunc eu malesuada fringilla, urna lacus lacinia tellus, at finibus risus lorem eget justo. Praesent pellentesque, urna non tincidunt fermentum, tellus eros blandit tellus, sed consequat dui nisi eget erat. Pellentesque nibh neque, dignissim ut semper a, aliquam vel velit. Nullam a urna non mi condimentum iaculis non ut ligula. Curabitur placerat tellus vel luctus varius.</p> <br/> <p> Praesent tincidunt, nisl a vulputate rutrum, diam ligula tempus turpis, vitae auctor sapien justo in erat. Phasellus quam neque, malesuada quis condimentum et, scelerisque ac sapien. Donec orci erat, posuere sed diam sed, sollicitudin sollicitudin dolor. Maecenas dignissim elit vitae gravida placerat. Proin gravida urna purus, in sodales libero interdum vitae. Praesent ultricies ipsum at erat vulputate suscipit. Nunc luctus, arcu vel pulvinar tempor, nulla augue iaculis lacus, quis dapibus lacus velit non sem. Nunc rhoncus elit est, eget tempor mauris consequat non.</p>",
+      "pubDate": "3/1/2000",
+      "comments": [
+        {
+          "userName": "Jose",
+          "commentContent": "lorem ipsum"
+        },
+        {
+          "userName": "ANAIS",
+          "commentContent": "lorem ipsum"
+        }
+      ]
+    }
+  ]
+}
