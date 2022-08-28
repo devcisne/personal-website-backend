@@ -1,17 +1,19 @@
 import express from 'express';
 import bodyParser from 'body-parser'
 import cors from 'cors'
-import creds from './creds.js';
 import nodemailer from 'nodemailer'
 import { MongoClient } from 'mongodb';
 import { check, validationResult } from 'express-validator'
+import axios from "axios";
+import dotenv from "dotenv"
 
+dotenv.config()
 
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
   auth: {
-    user: creds.USER,
-    pass: creds.PASS
+    user: process.env.USER,
+    pass: process.env.PASS
   }
 });
 
@@ -108,7 +110,21 @@ app.post("/api/blogEntries/:id/add-comment", (req, res) => {
 
 })
 
-app.post("/sendMail", [check('email').isEmail()], (req, res) => {
+app.post("/api/verifyCaptcha", (req, res) => {
+  console.log("token", req.body.token)
+  axios({ method: "POST", url: `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.VERIFY_SECRET}&response=${req.body.token}` })
+    .then((response) => {
+      console.log("Response success?", response.data.success)
+      res.status(200).json({ success: response.data.success })
+    }).catch((error) => {
+      console.log(`Error with recaptcha req:`, error);
+    });
+
+})
+
+
+
+app.post("/api/sendMail", [check('email').isEmail()], (req, res) => {
   console.log(req.body)
 
   const output = `
@@ -123,8 +139,8 @@ app.post("/sendMail", [check('email').isEmail()], (req, res) => {
   `;
 
   const mailOptions = {
-    from: `"Diego's website" <${creds.USER}>`,
-    to: `${creds.USER}`,
+    from: `"Diego's website" <${process.env.USER}>`,
+    to: `${process.env.USER}`,
     subject: req.body.subject || '[No subject]',
     html: output || '[No message]'
   };
