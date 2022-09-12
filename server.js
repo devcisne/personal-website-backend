@@ -20,8 +20,8 @@ const transporter = nodemailer.createTransport({
 
 const withDB = async (operations, res) => {
   const dbName = "personalwebsite";
-  const url = "mongodb://127.0.0.1:27017";
-  // const url = `mongodb+srv://${process.env.MONGOUSER}:${process.env.MONGOPASS}@personalwebsite.r9tnm38.mongodb.net/?retryWrites=true&w=majority`;
+  // const url = "mongodb://127.0.0.1:27017";
+  const url = `mongodb+srv://${process.env.MONGOUSER}:${process.env.MONGOPASS}@personalwebsite.r9tnm38.mongodb.net/?retryWrites=true&w=majority`;
 
   try {
     const client = await MongoClient.connect(url, { useNewUrlParser: true });
@@ -39,30 +39,31 @@ const withDB = async (operations, res) => {
 };
 
 const app = express();
-app.use(cors());
+
+app.use(cors({ origin: "https://www.diegocisneros.dev" }));
 app.use(bodyParser.json());
 
 app.get("/api/", (req, res) => {
   res.send("root api route");
 });
 
-app.post("/api/insertMany", (req, res) => {
-  withDB(async (collection) => {
-    const entries = req.body.blogEntries;
-    await collection
-      .insertMany(entries)
-      .then((insertResult) => {
-        res.status(200).json(insertResult);
-        console.log(insertResult);
-      })
-      .catch((error) => {
-        console.error(error);
-        res
-          .status(500)
-          .json({ msg: `The following error was found: ${error}` });
-      });
-  }, res);
-});
+// app.post("/api/insertMany", (req, res) => {
+//   withDB(async (collection) => {
+//     const entries = req.body.blogEntries;
+//     await collection
+//       .insertMany(entries)
+//       .then((insertResult) => {
+//         res.status(200).json(insertResult);
+//         console.log(insertResult);
+//       })
+//       .catch((error) => {
+//         console.error(error);
+//         res
+//           .status(500)
+//           .json({ msg: `The following error was found: ${error}` });
+//       });
+//   }, res);
+// });
 
 app.get("/api/blogEntries/:id", (req, res) => {
   withDB(async (collection) => {
@@ -175,10 +176,17 @@ app.post("/api/verifyCaptcha", (req, res) => {
     });
 });
 
-app.post("/api/sendMail", [check("email").isEmail(), check("subject").isLength({ min: 5 }),check("msg").isLength({ min: 5 })], (req, res) => {
-  console.log(req.body);
+app.post(
+  "/api/sendMail",
+  [
+    check("email").isEmail(),
+    check("subject").isLength({ min: 5 }),
+    check("msg").isLength({ min: 5 }),
+  ],
+  (req, res) => {
+    console.log(req.body);
 
-  const output = `
+    const output = `
   <p>You have a new contact request</p>
   <h3>Contact details:</h3>
   <ul>
@@ -189,33 +197,34 @@ app.post("/api/sendMail", [check("email").isEmail(), check("subject").isLength({
   <p>${req.body.msg || "[No message]"}</p>
   `;
 
-  const mailOptions = {
-    from: `"Diego's website" <${process.env.USERMAIL}>`,
-    to: `${process.env.USERMAIL}`,
-    subject: req.body.subject || "[No subject]",
-    html: output || "[No message]",
-  };
+    const mailOptions = {
+      from: `"Diego's website" <${process.env.USERMAIL}>`,
+      to: `${process.env.USERMAIL}`,
+      subject: req.body.subject || "[No subject]",
+      html: output || "[No message]",
+    };
 
-  const errors = validationResult(req);
+    const errors = validationResult(req);
 
-  if (!errors.isEmpty()) {
-    return res
-      .status(400)
-      .json({ message: "Something is wrong with the request..." });
-  }
+    if (!errors.isEmpty()) {
+      return res
+        .status(400)
+        .json({ message: "Something is wrong with the request..." });
+    }
 
-  const info = transporter.sendMail(mailOptions);
-  info
-    .then((info) => {
-      console.log("Message sent: %s", info);
-      res.status(200).json({
-        msg: `${req.body.senderName} your contact message has been sent`,
+    const info = transporter.sendMail(mailOptions);
+    info
+      .then((info) => {
+        console.log("Message sent: %s", info);
+        res.status(200).json({
+          msg: `${req.body.senderName} your contact message has been sent`,
+        });
+      })
+      .catch((err) => {
+        return res.status(500).send(err);
       });
-    })
-    .catch((err) => {
-      return res.status(500).send(err);
-    });
-});
+  }
+);
 
 const handler = serverless(app);
 export { app, handler };

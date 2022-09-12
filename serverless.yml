@@ -13,11 +13,21 @@ functions:
       - http:
           path: /
           method: ANY
-          cors: true
+          cors:
+            origin: 'https://www.diegocisneros.dev'
+            headers:
+              - Access-Control-Allow-Headers
+              - Access-Control-Allow-Origin
+              - content-type
       - http:
           path: /{proxy+}
           method: ANY
-          cors: true
+          cors:
+            origin: 'https://www.diegocisneros.dev'
+            headers:
+              - Access-Control-Allow-Headers
+              - Access-Control-Allow-Origin
+              - content-type
 
 plugins:
   - serverless-offline

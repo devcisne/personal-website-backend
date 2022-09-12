@@ -161,7 +161,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/express-app/dev/1662674070523-2022-09-08T21:54:30.523Z/express-app.zip"
+          "S3Key": "serverless/express-app/dev/1662999073248-2022-09-12T16:11:13.248Z/express-app.zip"
         },
         "Handler": "server.handler",
         "Runtime": "nodejs16.x",
@@ -179,14 +179,14 @@
         "AppLogGroup"
       ]
     },
-    "AppLambdaVersionCQFO0aJkw9sbMxJlREpwx6IUbxxMfPmmdt50uPEcsI8": {
+    "AppLambdaVersioniyvq7nFPSK1NZ2fC8TkONCC0kTRrOdJqYCeeK9ZNU0": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "AppLambdaFunction"
         },
-        "CodeSha256": "ZRRuZcCUmwf0mgKCn9PZtDugjK+wv90SEMZviAhBxlk="
+        "CodeSha256": "U2vJaBqcYJPwNI93Bco5+oIzNhJFTeceTBgPxEVMGEw="
       }
     },
     "ApiGatewayRestApi": {
@@ -243,8 +243,8 @@
             {
               "StatusCode": "200",
               "ResponseParameters": {
-                "method.response.header.Access-Control-Allow-Origin": "'*'",
-                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent,X-Amzn-Trace-Id'",
+                "method.response.header.Access-Control-Allow-Origin": "'https://www.diegocisneros.dev'",
+                "method.response.header.Access-Control-Allow-Headers": "'Access-Control-Allow-Headers,Access-Control-Allow-Origin,content-type'",
                 "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,DELETE,GET,HEAD,PATCH,POST,PUT'"
               },
               "ResponseTemplates": {
@@ -291,8 +291,8 @@
             {
               "StatusCode": "200",
               "ResponseParameters": {
-                "method.response.header.Access-Control-Allow-Origin": "'*'",
-                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent,X-Amzn-Trace-Id'",
+                "method.response.header.Access-Control-Allow-Origin": "'https://www.diegocisneros.dev'",
+                "method.response.header.Access-Control-Allow-Headers": "'Access-Control-Allow-Headers,Access-Control-Allow-Origin,content-type'",
                 "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,DELETE,GET,HEAD,PATCH,POST,PUT'"
               },
               "ResponseTemplates": {
@@ -404,7 +404,7 @@
         "AppLambdaPermissionApiGateway"
       ]
     },
-    "ApiGatewayDeployment1662674024941": {
+    "ApiGatewayDeployment1662999060828": {
       "Type": "AWS::ApiGateway::Deployment",
       "Properties": {
         "RestApiId": {
@@ -469,7 +469,7 @@
     "AppLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "AppLambdaVersionCQFO0aJkw9sbMxJlREpwx6IUbxxMfPmmdt50uPEcsI8"
+        "Ref": "AppLambdaVersioniyvq7nFPSK1NZ2fC8TkONCC0kTRrOdJqYCeeK9ZNU0"
       },
       "Export": {
         "Name": "sls-express-app-dev-AppLambdaFunctionQualifiedArn"
