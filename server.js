@@ -176,6 +176,32 @@ app.post("/api/verifyCaptcha", (req, res) => {
     });
 });
 
+app.post("/api/registerNewsletterEmail", (req, res) => {
+  console.log("req", req.body);
+  const reqObj = {
+    email: req.body.email,
+    subscribed: false,
+    doubleOptIn: true,
+    // authorization:process.env.REACT_APP_MAILBLUSTER_API_KEY
+  };
+  console.log(reqObj);
+  axios({
+    method: "POST",
+    url: `https://api.mailbluster.com/api/leads`,
+    data: reqObj,
+    headers: {
+      Authorization: process.env.MAILBLUSTER_API_KEY,
+    },
+  })
+    .then((response) => {
+      console.log("Response success?", response.data);
+      res.status(200).json({ success: response.data.success });
+    })
+    .catch((error) => {
+      console.log(`Error with newsletter register req:`, error);
+    });
+});
+
 app.post(
   "/api/sendMail",
   [
