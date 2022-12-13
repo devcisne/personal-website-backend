@@ -38,6 +38,27 @@ const withDB = async (operations, res) => {
   }
 };
 
+const withNewsletterDB = async (operations, res) => {
+  const dbName = "personalwebsite";
+  // const url = "mongodb://127.0.0.1:27017";
+  const url = `mongodb+srv://${process.env.MONGOUSER}:${process.env.MONGOPASS}@personalwebsite.r9tnm38.mongodb.net/?retryWrites=true&w=majority`;
+
+  try {
+    const client = await MongoClient.connect(url, { useNewUrlParser: true });
+    const db = client.db(dbName);
+    const collection = db.collection("newsletters");
+
+    await operations(collection);
+    client.close();
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      msg: `The following error was found with the DB operation: ${error}`,
+    });
+  }
+};
+
+
 const app = express();
 
 app.use(cors({ origin: "https://www.diegocisneros.dev" }));
@@ -64,6 +85,44 @@ app.get("/api/", (req, res) => {
 //       });
 //   }, res);
 // });
+
+app.get("/api/newsletters", (req, res) => {
+  withNewsletterDB(async (collection) => {
+    // const ID = req.params.id;
+    await collection
+      .countDocuments({})
+      .then((newsletterCount) => {
+        console.log("newsletterCount is :",newsletterCount);
+        res.status(200).json(newsletterCount);
+      })
+      .catch((error) => {
+        console.error(error);
+        res
+          .status(500)
+          .json({ msg: `The following error was found: ${error}` });
+      });
+  }, res);
+});
+
+
+app.get("/api/newsletters/:id", (req, res) => {
+  withNewsletterDB(async (collection) => {
+    const ID = req.params.id;
+    console.log(ID,Number(ID))
+    await collection
+      .findOne({ newsletterID: Number(ID) })
+      .then((newsletter) => {
+        res.status(200).json(newsletter);
+        console.log("sending item of id ",newsletter);
+      })
+      .catch((error) => {
+        console.error(error);
+        res
+          .status(500)
+          .json({ msg: `The following error was found: ${error}` });
+      });
+  }, res);
+});
 
 app.get("/api/blogEntries/:id", (req, res) => {
   withDB(async (collection) => {
