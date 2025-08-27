@@ -10,6 +10,31 @@ import serverless from "serverless-http";
 
 dotenv.config();
 
+// Validate required environment variables
+const requiredEnvVars = ["USERMAIL", "PASS", "MONGOUSER", "MONGOPASS"];
+const missingEnvVars = requiredEnvVars.filter((envVar) => !process.env[envVar]);
+
+if (missingEnvVars.length > 0) {
+  console.warn(
+    `Warning: Missing environment variables: ${missingEnvVars.join(", ")}`
+  );
+}
+
+// Optional environment variables warning
+const optionalEnvVars = ["MAILBLUSTER_API_KEY", "VERIFY_SECRET"];
+const missingOptionalEnvVars = optionalEnvVars.filter(
+  (envVar) => !process.env[envVar]
+);
+
+if (missingOptionalEnvVars.length > 0) {
+  console.warn(
+    `Warning: Missing optional environment variables: ${missingOptionalEnvVars.join(
+      ", "
+    )}`
+  );
+}
+
+// Create transporter for nodemailer
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   auth: {
@@ -18,146 +43,126 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-const withDB = async (operations, res) => {
-  const dbName = "personalwebsite";
-  // const url = "mongodb://127.0.0.1:27017";
+// Unified database connection function
+const withDB = async (dbName, collectionName, operations, res) => {
   const url = `mongodb+srv://${process.env.MONGOUSER}:${process.env.MONGOPASS}@personalwebsite.r9tnm38.mongodb.net/?retryWrites=true&w=majority`;
 
+  let client;
   try {
-    const client = await MongoClient.connect(url, { useNewUrlParser: true });
+    client = await MongoClient.connect(url);
     const db = client.db(dbName);
-    const collection = db.collection("blogEntries");
-
+    const collection = db.collection(collectionName);
     await operations(collection);
-    client.close();
   } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      msg: `The following error was found with the DB operation: ${error}`,
-    });
+    console.error("Database operation error:", error);
+    if (res) {
+      res.status(500).json({
+        msg: `Database operation failed: ${error.message}`,
+      });
+    }
+  } finally {
+    if (client) {
+      await client.close();
+    }
   }
 };
-
-const withNewsletterDB = async (operations, res) => {
-  const dbName = "personalwebsite";
-  // const url = "mongodb://127.0.0.1:27017";
-  const url = `mongodb+srv://${process.env.MONGOUSER}:${process.env.MONGOPASS}@personalwebsite.r9tnm38.mongodb.net/?retryWrites=true&w=majority`;
-
-  try {
-    const client = await MongoClient.connect(url, { useNewUrlParser: true });
-    const db = client.db(dbName);
-    const collection = db.collection("newsletters");
-
-    await operations(collection);
-    client.close();
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      msg: `The following error was found with the DB operation: ${error}`,
-    });
-  }
-};
-
 
 const app = express();
 
-app.use(cors({ origin: "https://www.diegocisneros.dev" }));
+// Middleware
+app.use(cors({ origin: "*" }));
 app.use(bodyParser.json());
 
+// Routes
 app.get("/api/", (req, res) => {
   res.send("root api route");
 });
 
-// app.post("/api/insertMany", (req, res) => {
-//   withDB(async (collection) => {
-//     const entries = req.body.blogEntries;
-//     await collection
-//       .insertMany(entries)
-//       .then((insertResult) => {
-//         res.status(200).json(insertResult);
-//         console.log(insertResult);
-//       })
-//       .catch((error) => {
-//         console.error(error);
-//         res
-//           .status(500)
-//           .json({ msg: `The following error was found: ${error}` });
-//       });
-//   }, res);
-// });
-
+// Newsletter routes
 app.get("/api/newsletters", (req, res) => {
-  withNewsletterDB(async (collection) => {
-    // const ID = req.params.id;
-    await collection
-      .countDocuments({})
-      .then((newsletterCount) => {
-        console.log("newsletterCount is :",newsletterCount);
+  withDB(
+    "personalwebsite-dev",
+    "newsletters",
+    async (collection) => {
+      try {
+        const newsletterCount = await collection.countDocuments({});
+        console.log("newsletterCount is:", newsletterCount);
         res.status(200).json(newsletterCount);
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error(error);
         res
           .status(500)
-          .json({ msg: `The following error was found: ${error}` });
-      });
-  }, res);
+          .json({ msg: `Error fetching newsletter count: ${error.message}` });
+      }
+    },
+    res
+  );
 });
-
 
 app.get("/api/newsletters/:id", (req, res) => {
-  withNewsletterDB(async (collection) => {
-    const ID = req.params.id;
-    console.log(ID,Number(ID))
-    await collection
-      .findOne({ newsletterID: Number(ID) })
-      .then((newsletter) => {
+  withDB(
+    "personalwebsite-dev",
+    "newsletters",
+    async (collection) => {
+      try {
+        const ID = req.params.id;
+        console.log(ID, Number(ID));
+        const newsletter = await collection.findOne({
+          newsletterID: Number(ID),
+        });
+        console.log("sending item of id", newsletter);
         res.status(200).json(newsletter);
-        console.log("sending item of id ",newsletter);
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error(error);
         res
           .status(500)
-          .json({ msg: `The following error was found: ${error}` });
-      });
-  }, res);
+          .json({ msg: `Error fetching newsletter: ${error.message}` });
+      }
+    },
+    res
+  );
 });
 
+// Blog entries routes
 app.get("/api/blogEntries/:id", (req, res) => {
-  withDB(async (collection) => {
-    const ID = req.params.id;
-    await collection
-      .findOne({ entryID: ID })
-      .then((blogEntry) => {
-        res.status(200).json(blogEntry);
+  withDB(
+    "personalwebsite-dev",
+    "blogEntries",
+    async (collection) => {
+      try {
+        const ID = req.params.id;
+        const blogEntry = await collection.findOne({ entryID: ID });
         console.log(blogEntry);
-      })
-      .catch((error) => {
+        res.status(200).json(blogEntry);
+      } catch (error) {
         console.error(error);
         res
           .status(500)
-          .json({ msg: `The following error was found: ${error}` });
-      });
-  }, res);
+          .json({ msg: `Error fetching blog entry: ${error.message}` });
+      }
+    },
+    res
+  );
 });
 
 app.get("/api/blogEntries/", (req, res) => {
-  withDB(async (collection) => {
-    await collection
-      .find()
-      .toArray()
-      .then((blogEntryArray) => {
-        res.status(200).json(blogEntryArray);
+  withDB(
+    "personalwebsite-dev",
+    "blogEntries",
+    async (collection) => {
+      try {
+        const blogEntryArray = await collection.find().toArray();
         console.log(blogEntryArray);
-      })
-      .catch((error) => {
+        res.status(200).json(blogEntryArray);
+      } catch (error) {
         console.error(error);
         res
           .status(500)
-          .json({ msg: `The following error was found: ${error}` });
-      });
-  }, res);
+          .json({ msg: `Error fetching blog entries: ${error.message}` });
+      }
+    },
+    res
+  );
 });
 
 app.post(
@@ -173,92 +178,117 @@ app.post(
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-      return res
-        .status(400)
-        .json({ message: "Something is wrong with the request..." });
+      return res.status(400).json({
+        message: "Validation failed",
+        errors: errors.array(),
+      });
     }
 
-    withDB(async (collection) => {
-      const blogEntry = await collection.findOne({ entryID: ID });
-      await collection.updateOne(
-        { entryID: ID },
-        {
-          $set: {
-            comments: blogEntry.comments.concat({ userName, commentContent }),
-          },
+    withDB(
+      "personalwebsite-dev",
+      "blogEntries",
+      async (collection) => {
+        try {
+          const blogEntry = await collection.findOne({ entryID: ID });
+          if (!blogEntry) {
+            return res.status(404).json({ message: "Blog entry not found" });
+          }
+
+          const updatedEntry = await collection.findOneAndUpdate(
+            { entryID: ID },
+            {
+              $push: {
+                comments: { userName, commentContent },
+              },
+            },
+            { returnDocument: "after" }
+          );
+
+          console.log(updatedEntry.value);
+
+          // Send email notification
+          const output = `
+          <h2>New comment alert!:</h2>
+          <p>There's been a new comment on article ${ID}</p>
+          <h3>User name: ${userName}</h3>
+          <h3>Comment:</h3>
+          <p>${commentContent || "[No Comment]"}</p>
+        `;
+
+          const mailOptions = {
+            from: `"Diego's website" <${process.env.USERMAIL}>`,
+            to: `${process.env.USERMAIL}`,
+            subject: `New Comment - ${ID}` || "[No subject]",
+            html: output || "[No message]",
+          };
+
+          try {
+            const info = await transporter.sendMail(mailOptions);
+            console.log("Message sent: %s", info.messageId);
+          } catch (emailError) {
+            console.error("Failed to send email notification:", emailError);
+          }
+
+          res.status(200).json(updatedEntry.value);
+        } catch (error) {
+          console.error(error);
+          res
+            .status(500)
+            .json({ msg: `Error adding comment: ${error.message}` });
         }
-      );
-      const updatedEntry = await collection.findOne({ entryID: ID });
-      console.log(updatedEntry);
-
-      const output = `
-    <h2>New comment alert!:</h2>
-    <p>There's been a new comment on article ${ID}</p>
-    <h3>User name: ${userName}</h3>
-    <h3>Comment:</h3>
-    <p>${commentContent || "[No Comment]"}</p>
-    `;
-
-      const mailOptions = {
-        from: `"Diego's website" <${process.env.USERMAIL}>`,
-        to: `${process.env.USERMAIL}`,
-        subject: `new Comment - ${ID}` || "[No subject]",
-        html: output || "[No message]",
-      };
-
-      const info = transporter.sendMail(mailOptions);
-      info
-        .then((info) => {
-          console.log("Message sent: %s", info);
-        })
-        .catch((err) => {
-          return res.status(500).send(err);
-        });
-
-      res.status(200).json(updatedEntry);
-    }, res);
+      },
+      res
+    );
   }
 );
 
-app.post("/api/verifyCaptcha", (req, res) => {
-  console.log("token", req.body.token);
-  axios({
-    method: "POST",
-    url: `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.VERIFY_SECRET}&response=${req.body.token}`,
-  })
-    .then((response) => {
-      console.log("Response success?", response.data);
-      res.status(200).json({ success: response.data.success });
-    })
-    .catch((error) => {
-      console.log(`Error with recaptcha req:`, error);
+app.post("/api/verifyCaptcha", async (req, res) => {
+  try {
+    console.log("token", req.body.token);
+    const response = await axios.post(
+      `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.VERIFY_SECRET}&response=${req.body.token}`
+    );
+
+    console.log("Response success?", response.data);
+    res.status(200).json({ success: response.data.success });
+  } catch (error) {
+    console.error(`Error with recaptcha req:`, error);
+    res.status(500).json({
+      msg: `Error verifying captcha: ${error.message}`,
+      success: false,
     });
+  }
 });
 
-app.post("/api/registerNewsletterEmail", (req, res) => {
-  console.log("req", req.body);
-  const reqObj = {
-    email: req.body.email,
-    subscribed: false,
-    doubleOptIn: true,
-    // authorization:process.env.REACT_APP_MAILBLUSTER_API_KEY
-  };
-  console.log(reqObj);
-  axios({
-    method: "POST",
-    url: `https://api.mailbluster.com/api/leads`,
-    data: reqObj,
-    headers: {
-      Authorization: process.env.MAILBLUSTER_API_KEY,
-    },
-  })
-    .then((response) => {
-      console.log("Response success?", response.data);
-      res.status(200).json({ success: response.data.success });
-    })
-    .catch((error) => {
-      console.log(`Error with newsletter register req:`, error);
+app.post("/api/registerNewsletterEmail", async (req, res) => {
+  try {
+    console.log("req", req.body);
+    const reqObj = {
+      email: req.body.email,
+      subscribed: false,
+      doubleOptIn: true,
+    };
+    console.log(reqObj);
+
+    const response = await axios.post(
+      `https://api.mailbluster.com/api/leads`,
+      reqObj,
+      {
+        headers: {
+          Authorization: process.env.MAILBLUSTER_API_KEY,
+        },
+      }
+    );
+
+    console.log("Response success?", response.data);
+    res.status(200).json({ success: response.data.success });
+  } catch (error) {
+    console.error(`Error with newsletter register req:`, error);
+    res.status(500).json({
+      msg: `Error registering newsletter: ${error.message}`,
+      success: false,
     });
+  }
 });
 
 app.post(
@@ -268,19 +298,28 @@ app.post(
     check("subject").isLength({ min: 5 }),
     check("msg").isLength({ min: 5 }),
   ],
-  (req, res) => {
+  async (req, res) => {
     console.log(req.body);
 
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        message: "Validation failed",
+        errors: errors.array(),
+      });
+    }
+
     const output = `
-  <p>You have a new contact request</p>
-  <h3>Contact details:</h3>
-  <ul>
-  <li>Name: ${req.body.senderName}</li>
-  <li>Email: ${req.body.email}</li>
-  </ul>
-  <h3>Message:</h3>
-  <p>${req.body.msg || "[No message]"}</p>
-  `;
+      <p>You have a new contact request</p>
+      <h3>Contact details:</h3>
+      <ul>
+        <li>Name: ${req.body.senderName}</li>
+        <li>Email: ${req.body.email}</li>
+      </ul>
+      <h3>Message:</h3>
+      <p>${req.body.msg || "[No message]"}</p>
+    `;
 
     const mailOptions = {
       from: `"Diego's website" <${process.env.USERMAIL}>`,
@@ -289,25 +328,18 @@ app.post(
       html: output || "[No message]",
     };
 
-    const errors = validationResult(req);
-
-    if (!errors.isEmpty()) {
-      return res
-        .status(400)
-        .json({ message: "Something is wrong with the request..." });
-    }
-
-    const info = transporter.sendMail(mailOptions);
-    info
-      .then((info) => {
-        console.log("Message sent: %s", info);
-        res.status(200).json({
-          msg: `${req.body.senderName} your contact message has been sent`,
-        });
-      })
-      .catch((err) => {
-        return res.status(500).send(err);
+    try {
+      const info = await transporter.sendMail(mailOptions);
+      console.log("Message sent: %s", info.messageId);
+      res.status(200).json({
+        msg: `${req.body.senderName} your contact message has been sent`,
       });
+    } catch (error) {
+      console.error("Failed to send email:", error);
+      res.status(500).json({
+        msg: `Failed to send email: ${error.message}`,
+      });
+    }
   }
 );
 
